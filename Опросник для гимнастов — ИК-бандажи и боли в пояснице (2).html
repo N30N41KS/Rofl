@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Исследование болей в пояснице у гимнастов и применение ИК-бандажей</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        /* Плавная прокрутка */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Кастомная анимация появления */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+        /* Стилизация карточек выбора */
+        .option-card {
+            transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .option-card:hover:not(.disabled-option) {
+            border-color: #6366f1;
+            background-color: #f5f3ff;
+        }
+        .option-card.selected {
+            border-color: #4f46e5;
+            background-color: #eef2ff;
+            box-shadow: 0 0 0 1px #4f46e5;
+        }
+        .option-card.disabled-option {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        /* Печать для отчета */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-indigo-600 selection:text-white">
+
+    <!-- Уведомления (Тосты) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full px-4 pointer-events-none"></div>
+
+    <!-- Модальное окно: Настройка облака для GitHub Pages и рассылки ссылки -->
+    <div id="cloud-setup-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl border border-slate-200 max-w-2xl w-full p-5 sm:p-6 shadow-xl animate-fade-in my-8">
+            <div class="flex items-start justify-between gap-3 border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="cloud-cog" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base sm:text-lg font-extrabold text-slate-900">Облачная база и работа на GitHub Pages</h3>
+                        <p class="text-xs text-slate-500">Как собирать ответы со всех телефонов в единую таблицу на сайте</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeCloudModal()" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 my-4 text-xs sm:text-sm text-slate-700 leading-relaxed max-h-[68vh] overflow-y-auto pr-1">
+                <!-- Текущий статус -->
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5">
+                        <span id="modal-status-dot" class="w-3 h-3 rounded-full bg-emerald-500 shrink-0"></span>
+                        <div>
+                            <div class="font-bold text-slate-900" id="modal-status-title">Проверка подключения...</div>
+                            <div class="text-xs text-slate-500" id="modal-status-desc">Определение активного хранилища ответов</div>
+                        </div>
+                    </div>
+                    <button type="button" onclick="copyShareableLink()" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition shrink-0 cursor-pointer flex items-center gap-1.5">
+                        <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                        <span>Скопировать ссылку</span>
+                    </button>
+                </div>
+
+                <!-- Инструкция для GitHub Pages через бесплатный Google Apps Script -->
+                <div class="bg-indigo-50/60 border border-indigo-200/80 rounded-xl p-4 space-y-2.5">
+                    <div class="font-bold text-indigo-950 flex items-center gap-2">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-indigo-600 shrink-0"></i>
+                        <span>Как подключить вечную бесплатную базу на GitHub Pages за 1 минуту:</span>
+                    </div>
+                    <ol class="list-decimal list-inside space-y-1.5 text-xs text-slate-700">
+                        <li>Создайте пустую <b>Google Таблицу</b> (sheets.new) и нажмите в верхнем меню: <b>Расширения → Apps Script</b>.</li>
+                        <li>Замените весь текст в редакторе на готовый серверный код ниже и нажмите кнопку <b>«Скопировать код скрипта»</b>:</li>
+                    </ol>
+
+                    <div class="relative">
+                        <pre id="gas-script-code" class="bg-slate-900 text-slate-100 p-3 rounded-xl text-[11px] font-mono overflow-x-auto leading-normal">function doGet() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var rows = sheet.getDataRange().getValues();
+  var list = [];
+  for (var i = 1; i &lt; rows.length; i++) {
+    if (rows[i][1]) {
+      try { list.push(JSON.parse(rows[i][1])); } catch(e) {}
+    }
+  }
+  return ContentService.createTextOutput(JSON.stringify({ status: 'ok', data: list }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  if (sheet.getLastRow() === 0) sheet.appendRow(['Дата', 'JSON_DATA']);
+  var body = JSON.parse(e.postData.contents);
+  if (body.action === 'clear') {
+    sheet.clear();
+    sheet.appendRow(['Дата', 'JSON_DATA']);
+  } else if (body.action === 'addBatch' &amp;&amp; Array.isArray(body.items)) {
+    body.items.forEach(function(item) {
+      sheet.appendRow([new Date(), JSON.stringify(item)]);
+    });
+  } else if (body.item) {
+    sheet.appendRow([new Date(), JSON.stringify(body.item)]);
+  }
+  return ContentService.createTextOutput(JSON.stringify({ status: 'ok' }))
+    .setMimeType(ContentService.MimeType.JSON);
+}</pre>
+                        <button type="button" onclick="copyGasScript()" class="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-white text-[11px] font-semibold backdrop-blur-xs transition cursor-pointer">
+                            Скопировать код скрипта
+                        </button>
+                    </div>
+
+                    <ol start="3" class="list-decimal list-inside space-y-1.5 text-xs text-slate-700">
+                        <li>В правом верхнем углу Apps Script нажмите <b>«Начать развертывание» → «Новое развертывание»</b>.</li>
+                        <li>Выберите тип <b>«Веб-приложение»</b>, в поле <i>«У кого есть доступ»</i> обязательно выберите <b>«Все» (Anyone)</b> и нажмите «Начать развертывание».</li>
+                        <li>Скопируйте полученный URL веб-приложения (`https://script.google.com/macros/s/.../exec`) и вставьте в поле ниже (или в константу <code>CUSTOM_GOOGLE_SCRIPT_URL</code> внутри <code>index.html</code>):</li>
+                    </ol>
+
+                    <div class="pt-1 flex flex-col sm:flex-row gap-2">
+                        <input id="gas-url-input" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="flex-1 px-3.5 py-2 rounded-xl border border-indigo-300 bg-white text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                        <button type="button" onclick="applyCustomGasUrl()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition cursor-pointer shrink-0">
+                            Подключить и скопировать ссылку
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                <button type="button" onclick="closeCloudModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition cursor-pointer">
+                    Закрыть
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения очистки базы -->
+    <div id="confirm-clear-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl border border-slate-200 max-w-md w-full p-6 shadow-xl animate-fade-in">
+            <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
+                <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+            </div>
+            <h3 class="text-base font-extrabold text-slate-900 mb-1">Очистить базу ответов?</h3>
+            <p class="text-xs sm:text-sm text-slate-600 mb-5">
+                Все собранные анкеты будут удалены из текущей базы данных. Перед удалением вы можете скачать таблицу в Excel (.xls или .csv).
+            </p>
+            <div class="flex items-center justify-end gap-2.5">
+                <button type="button" onclick="closeClearConfirmModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs sm:text-sm font-semibold transition cursor-pointer">
+                    Отмена
+                </button>
+                <button type="button" onclick="confirmClearAllResponses()" class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs sm:text-sm font-semibold transition cursor-pointer">
+                    Да, очистить базу
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Шапка сайта и навигация по вкладкам -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs no-print">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between py-3 gap-3">
+                <!-- Логотип, название и индикатор облака -->
+                <div class="flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-rose-500 flex items-center justify-center text-white shadow-sm shrink-0">
+                            <i data-lucide="activity" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <span class="text-[11px] font-semibold uppercase tracking-wider text-indigo-600">Спортивная медицина</span>
+                                <button type="button" onclick="openCloudModal()" id="cloud-status-badge" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition cursor-pointer" title="Нажмите для настройки облака или получения ссылки">
+                                    <span id="cloud-status-dot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                    <span id="cloud-status-text">Подключение к облаку...</span>
+                                </button>
+                            </div>
+                            <h1 class="text-sm sm:text-base font-bold text-slate-900 leading-tight mt-0.5">Опрос гимнастов: Поясница и ИК-бандажи</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Переключатель вкладок и кнопка настройки -->
+                <div class="flex items-center gap-2 self-start md:self-auto w-full md:w-auto">
+                    <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200/80 flex-1 md:flex-initial">
+                        <button type="button" id="tab-btn-survey" onclick="switchTab('survey')" class="flex-1 md:flex-initial flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-indigo-600 shadow-xs cursor-pointer">
+                            <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+                            <span>Пройти опрос</span>
+                        </button>
+                        <button type="button" id="tab-btn-stats" onclick="switchTab('stats')" class="flex-1 md:flex-initial flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 cursor-pointer">
+                            <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                            <span>Результаты и база</span>
+                            <span id="header-response-badge" class="ml-1 px-1.5 py-0.5 text-[11px] rounded-full bg-indigo-100 text-indigo-700 font-bold">0</span>
+                        </button>
+                    </div>
+                    <button type="button" onclick="openCloudModal()" class="p-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition cursor-pointer shrink-0" title="Настройка облака для GitHub Pages и ссылка для рассылки">
+                        <i data-lucide="cloud-cog" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Полоса прогресса заполнения анкеты (видна только на вкладке опроса) -->
+        <div id="survey-progress-wrapper" class="bg-slate-100 border-t border-slate-200/60">
+            <div class="max-w-3xl mx-auto px-4 py-2 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-2 text-xs font-medium text-slate-600 shrink-0">
+                    <span>Заполнено:</span>
+                    <span id="progress-text" class="font-bold text-indigo-600">0 из 15</span>
+                </div>
+                <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-gradient-to-r from-indigo-600 to-rose-500 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <span id="progress-percent" class="text-xs font-bold text-slate-700 w-9 text-right shrink-0">0%</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- ОСНОВНОЙ КОНТЕНТ -->
+    <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+        <!-- ==================== ВКЛАДКА 1: ПРОЙТИ ОПРОС ==================== -->
+        <section id="tab-survey" class="max-w-3xl mx-auto animate-fade-in">
+            
+            <!-- Вступительный баннер анкеты -->
+            <div class="bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-md mb-6 relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-44 h-44 bg-rose-500/20 rounded-full blur-2xl pointer-events-none"></div>
+                <div class="relative z-10">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-xs text-xs font-medium text-indigo-100">
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-rose-300"></i>
+                            <span>Анонимное анкетирование спортсменов</span>
+                        </div>
+                        <button type="button" onclick="copyShareableLink()" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-xs font-semibold text-white transition cursor-pointer">
+                            <i data-lucide="link" class="w-3.5 h-3.5"></i>
+                            <span>Скопировать ссылку на опрос</span>
+                        </button>
+                    </div>
+                    <h2 class="text-xl sm:text-2xl font-extrabold tracking-tight mb-2">
+                        Исследование болей в пояснице у гимнастов и применение ИК-бандажей
+                    </h2>
+                    <p class="text-indigo-100/90 text-xs sm:text-sm leading-relaxed">
+                        Пожалуйста, ответьте на 15 вопросов анкеты. Все ответы автоматически сохраняются в общей базе исследования. Время заполнения — около 2 минут.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Форма опроса -->
+            <form id="survey-form" onsubmit="handleSurveySubmit(event)" novalidate class="space-y-5">
+                <!-- Контейнер, куда рендерятся все 15 вопросов -->
+                <div id="questions-container" class="space-y-5"></div>
+
+                <!-- Блок ошибки валидации -->
+                <div id="validation-banner" class="hidden bg-rose-50 border border-rose-200 rounded-2xl p-4 text-rose-800 text-sm flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="w-5 h-5 text-rose-600 shrink-0 mt-0.5"></i>
+                    <div>
+                        <p class="font-bold">Пожалуйста, ответьте на все вопросы анкеты</p>
+                        <p id="validation-missing-list" class="text-xs text-rose-700 mt-1"></p>
+                    </div>
+                </div>
+
+                <!-- Кнопки отправки и сброса -->
+                <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <button type="button" onclick="resetFormWithConfirm()" class="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 text-sm font-medium transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                        <span>Очистить форму</span>
+                    </button>
+                    <button type="submit" id="submit-survey-btn" class="w-full sm:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-semibold text-sm shadow-md shadow-indigo-500/20 transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="send" class="w-4 h-4"></i>
+                        <span id="submit-survey-btn-text">Отправить ответы</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Экран благодарности после отправки -->
+            <div id="thank-you-screen" class="hidden bg-white rounded-2xl border border-slate-200 p-8 text-center shadow-sm animate-fade-in">
+                <div class="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="check-circle-2" class="w-9 h-9"></i>
+                </div>
+                <h3 class="text-xl font-extrabold text-slate-900 mb-2">Спасибо за участие в исследовании!</h3>
+                <p class="text-sm text-slate-600 max-w-md mx-auto mb-6">
+                    Ваш ответ успешно сохранен в единую облачную базу исследования и уже учтен в общей статистике.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button type="button" onclick="startNewSurvey()" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>Заполнить еще одну анкету</span>
+                    </button>
+                    <button type="button" onclick="switchTab('stats')" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-sm font-semibold transition flex items-center justify-center gap-2 cursor-pointer">
+                        <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                        <span>Посмотреть результаты и графики</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== ВКЛАДКА 2: РЕЗУЛЬТАТЫ И БАЗА ОТВЕТОВ ==================== -->
+        <section id="tab-stats" class="hidden space-y-6 animate-fade-in">
+
+            <!-- Панель управления данными, экспорт и демо-генератор -->
+            <div class="bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs">
+                <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div>
+                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="pie-chart" class="w-5 h-5 text-indigo-600"></i>
+                            <span>Результаты опроса и облачная база анкет</span>
+                        </h2>
+                        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+                            Все ответы сохраняются на сайте в реальном времени и доступны для просмотра и выгрузки в Excel.
+                        </p>
+                    </div>
+
+                    <!-- Кнопки экспорта и генерации -->
+                    <div class="flex flex-wrap items-center gap-2 no-print">
+                        <button type="button" onclick="exportToExcelXLS()" class="px-3.5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition flex items-center gap-1.5 cursor-pointer" title="Скачать готовую оформленную таблицу для Microsoft Excel">
+                            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                            <span>Скачать Excel (.xls)</span>
+                        </button>
+                        <button type="button" onclick="exportToCSV()" class="px-3.5 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white text-xs sm:text-sm font-semibold shadow-xs transition flex items-center gap-1.5 cursor-pointer" title="Скачать универсальный CSV-файл для Excel и Google Таблиц">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>CSV</span>
+                        </button>
+                        <button type="button" onclick="exportToJSON()" class="px-3 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-semibold transition flex items-center gap-1.5 cursor-pointer" title="Скачать базу в формате JSON">
+                            <i data-lucide="code" class="w-4 h-4"></i>
+                            <span>JSON</span>
+                        </button>
+                        <button type="button" id="btn-generate-demo" onclick="generateDemoResponses(30)" class="px-3.5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs sm:text-sm font-semibold shadow-xs transition flex items-center gap-1.5 cursor-pointer">
+                            <i data-lucide="wand-2" class="w-4 h-4"></i>
+                            <span>+ 30 демо-анкет</span>
+                        </button>
+                        <button type="button" onclick="openClearConfirmModal()" class="px-3 py-2.5 rounded-xl border border-slate-200 hover:bg-rose-50 hover:border-rose-200 hover:text-rose-600 text-slate-600 text-xs sm:text-sm font-medium transition flex items-center gap-1.5 cursor-pointer" title="Очистить все ответы">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Сводные KPI-карточки -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5 mt-6">
+                    <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4">
+                        <span class="text-xs font-medium text-slate-500 block">Всего анкет в базе</span>
+                        <div class="flex items-baseline gap-2 mt-1">
+                            <span id="kpi-total" class="text-2xl sm:text-3xl font-extrabold text-slate-900">0</span>
+                            <span class="text-xs text-slate-500">гимнастов</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4">
+                        <span class="text-xs font-medium text-slate-500 block">Сталкиваются с болью</span>
+                        <div class="flex items-baseline gap-2 mt-1">
+                            <span id="kpi-pain-share" class="text-2xl sm:text-3xl font-extrabold text-rose-600">0%</span>
+                            <span id="kpi-pain-count" class="text-xs text-slate-500">(0 чел.)</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4">
+                        <span class="text-xs font-medium text-slate-500 block">Средний балл боли (0–10)</span>
+                        <div class="flex items-baseline gap-2 mt-1">
+                            <span id="kpi-avg-pain" class="text-2xl sm:text-3xl font-extrabold text-amber-600">0.0</span>
+                            <span class="text-xs text-slate-500">из 10 баллов</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4">
+                        <span class="text-xs font-medium text-slate-500 block">Готовы применять ИК-бандаж</span>
+                        <div class="flex items-baseline gap-2 mt-1">
+                            <span id="kpi-ir-ready" class="text-2xl sm:text-3xl font-extrabold text-indigo-600">0%</span>
+                            <span class="text-xs text-slate-500">«Да» / «Скорее да»</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Пустое состояние, если ответов пока 0 -->
+            <div id="stats-empty-state" class="bg-white rounded-2xl border border-dashed border-slate-300 p-10 text-center">
+                <div class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="database" class="w-7 h-7"></i>
+                </div>
+                <h3 class="text-base font-bold text-slate-900 mb-1">В базе пока нет сохраненных анкет</h3>
+                <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mb-5">
+                    Отправьте ссылку на опрос участникам, заполните анкету во вкладке «Пройти опрос» или нажмите кнопку ниже, чтобы сразу наполнить базу 30 реалистичными ответами гимнастов.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-3">
+                    <button type="button" onclick="generateDemoResponses(30)" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-xs transition inline-flex items-center gap-2 cursor-pointer">
+                        <i data-lucide="wand-2" class="w-4 h-4"></i>
+                        <span>Заполнить базу (30 демо-анкет)</span>
+                    </button>
+                    <button type="button" onclick="copyShareableLink()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold transition inline-flex items-center gap-2 cursor-pointer">
+                        <i data-lucide="share-2" class="w-4 h-4"></i>
+                        <span>Скопировать ссылку на опрос</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Контент статистики (скрыт при 0 ответов) -->
+            <div id="stats-content-wrapper" class="hidden space-y-6">
+                
+                <!-- Автоматический текстовый вывод для курсовой/диплома -->
+                <div class="bg-indigo-50/70 border border-indigo-200 rounded-2xl p-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                        <div class="flex items-center gap-2 text-indigo-950 font-bold text-sm">
+                            <i data-lucide="file-text" class="w-4 h-4 text-indigo-600"></i>
+                            <span>Готовая аналитическая сводка (для вставки в курсовую / диплом)</span>
+                        </div>
+                        <button type="button" onclick="copySummaryText()" class="self-start sm:self-auto px-3 py-1.5 rounded-lg bg-white hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>Скопировать текст вывода</span>
+                        </button>
+                    </div>
+                    <p id="auto-summary-text" class="text-xs sm:text-sm text-slate-700 leading-relaxed"></p>
+                </div>
+
+                <!-- Сетка графиков по всем 15 вопросам -->
+                <div id="charts-grid" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+
+                <!-- Полная таблица всех индивидуальных ответов -->
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+                    <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-sm sm:text-base font-bold text-slate-900">Полный журнал сохраненных анкет (все 15 вопросов)</h3>
+                            <p class="text-xs text-slate-500">Прокрутите таблицу вправо, чтобы увидеть ответы каждого участника по всем пунктам</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span id="table-count-label" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">0 записей</span>
+                            <button type="button" onclick="exportToExcelXLS()" class="px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-semibold transition cursor-pointer">
+                                Выгрузить в Excel (.xls)
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto max-h-[460px]">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead class="bg-slate-50 text-slate-600 uppercase sticky top-0 z-10 border-b border-slate-200 shadow-2xs">
+                                <tr>
+                                    <th class="py-3 px-3 font-semibold whitespace-nowrap">#</th>
+                                    <th class="py-3 px-3 font-semibold whitespace-nowrap">Время</th>
+                                    <th class="py-3 px-3 font-semibold whitespace-nowrap">1. Пол / 2. Возраст</th>
+                                    <th class="py-3 px-3 font-semibold whitespace-nowrap">3. Разряд / 4. Стаж</th>
+                                    <th class="py-3 px-3 font-semibold whitespace-nowrap">5. Частота боли</th>
+                                    <th class="py-3 px-3 font-semibold min-w-[170px]">6. Когда возникает</th>
+                                    <th class="py-3 px-3 font-semibold whitespace-nowrap">7. Связь с элем.</th>
+                                    <th class="py-3 px-3 font-semibold whitespace-nowrap">8. Балл (0–10)</th>
+                                    <th class="py-3 px-3 font-semibold min-w-[180px]">9. Меры при боли</th>
+                                    <th class="py-3 px-3 font-semibold whitespace-nowrap">10. Врач</th>
+                                    <th class="py-3 px-3 font-semibold whitespace-nowrap">11. Восстановление</th>
+                                    <th class="py-3 px-3 font-semibold whitespace-nowrap">12. Знание об ИК</th>
+                                    <th class="py-3 px-3 font-semibold whitespace-nowrap">13. Удобство ИК</th>
+                                    <th class="py-3 px-3 font-semibold whitespace-nowrap">14. Готовность</th>
+                                    <th class="py-3 px-3 font-semibold min-w-[180px]">15. Главные критерии</th>
+                                    <th class="py-3 px-3 font-semibold text-center whitespace-nowrap">Действие</th>
+                                </tr>
+                            </thead>
+                            <tbody id="responses-table-body" class="divide-y divide-slate-200/70 text-slate-700"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Подвал -->
+    <footer class="bg-white border-t border-slate-200 py-4 mt-12 no-print">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+            <span>Веб-анкета: «Исследование болей в пояснице у гимнастов и применение ИК-бандажей»</span>
+            <span>Облачная синхронизация ответов • Выгрузка в Excel (.xls / .csv / .json)</span>
+        </div>
+    </footer>
+
+    <!-- Основной модуль приложения с поддержкой Firebase Firestore и облачного моста для GitHub Pages -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, doc, addDoc, setDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // =========================================================================
+        // НАСТРОЙКА ДЛЯ АВТОНОМНОГО РАЗМЕЩЕНИЯ НА GITHUB PAGES (НЕОБЯЗАТЕЛЬНО)
+        // Если вы выкладываете файл на GitHub Pages, вы можете вставить сюда ссылку
+        // на развернутый Google Apps Script (инструкция по кнопке "Облако" в шапке),
+        // либо передать её прямо в ссылке: https://ваш-сайт.github.io/?api=ВАШ_URL
+        // =========================================================================
+        const CUSTOM_GOOGLE_SCRIPT_URL = "";
+        const CUSTOM_FIREBASE_CONFIG = null;
+
+        // =========================================================================
+        // 1. СТРУКТУРА ВСЕХ 15 ВОПРОСОВ ОПРОСНИКА
+        // =========================================================================
+        const SURVEY_QUESTIONS = [
+            {
+                id: 'q1',
+                number: 1,
+                title: 'Ваш пол:',
+                type: 'single',
+                options: ['Женский', 'Мужской']
+            },
+            {
+                id: 'q2',
+                number: 2,
+                title: 'Ваш возраст:',
+                type: 'single',
+                options: ['до 14 лет', '14–17 лет', '18–22 года', '23 и старше']
+            },
+            {
+                id: 'q3',
+                number: 3,
+                title: 'Ваш спортивный разряд / уровень:',
+                type: 'single',
+                options: ['Начинающий (до 1 разряда)', 'КМС / 1 разряд', 'МС и выше']
+            },
+            {
+                id: 'q4',
+                number: 4,
+                title: 'Стаж занятий гимнастикой:',
+                type: 'single',
+                options: ['менее 3 лет', '3–7 лет', '8–12 лет', 'более 12 лет']
+            },
+            {
+                id: 'q5',
+                number: 5,
+                title: 'Как часто вы испытываете боль или дискомфорт в пояснице?',
+                type: 'single',
+                options: [
+                    'Никогда',
+                    'Редко (1–2 раза в год)',
+                    'Иногда (1–2 раза в месяц)',
+                    'Часто (еженедельно)',
+                    'Постоянно'
+                ]
+            },
+            {
+                id: 'q6',
+                number: 6,
+                title: 'В какой момент чаще всего возникает боль?',
+                subtitle: 'Можно выбрать несколько вариантов. Вариант «Боль не возникает» исключает остальные.',
+                type: 'multiple',
+                exclusiveOption: 'Боль не возникает',
+                options: [
+                    'Во время тренировки',
+                    'После тренировки',
+                    'Утром после сна',
+                    'При выполнении конкретных элементов',
+                    'Боль не возникает'
+                ]
+            },
+            {
+                id: 'q7',
+                number: 7,
+                title: 'Связываете ли вы боль с определенными элементами (мостик, прогибы, скручивания)?',
+                type: 'single',
+                options: ['Да, четко связываю', 'Скорее да', 'Скорее нет', 'Нет']
+            },
+            {
+                id: 'q8',
+                number: 8,
+                title: 'Оцените интенсивность боли в пояснице за последний месяц по шкале от 0 до 10:',
+                subtitle: '0 — нет боли, 10 — невыносимая боль',
+                type: 'scale',
+                options: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+            },
+            {
+                id: 'q9',
+                number: 9,
+                title: 'Что вы обычно делаете при боли в пояснице?',
+                subtitle: 'Можно выбрать несколько вариантов',
+                type: 'multiple',
+                hasOtherInput: true,
+                otherOptionLabel: 'Другое',
+                options: [
+                    'Отдых / прекращение нагрузки',
+                    'Обезболивающие мази / НПВС',
+                    'Кинезиотейпирование',
+                    'Массаж / мануальная терапия',
+                    'Физиотерапия (в кабинете)',
+                    'Тепловые процедуры (грелка, баня)',
+                    'Ничего не делаю, проходит само',
+                    'Другое'
+                ]
+            },
+            {
+                id: 'q10',
+                number: 10,
+                title: 'Обращались ли вы к врачу по поводу боли в пояснице?',
+                type: 'single',
+                options: [
+                    'Да, и был поставлен диагноз',
+                    'Да, но без четкого диагноза',
+                    'Нет, не обращался'
+                ]
+            },
+            {
+                id: 'q11',
+                number: 11,
+                title: 'Сколько времени в среднем уходит на восстановление после обострения?',
+                type: 'single',
+                options: [
+                    '1–2 дня',
+                    'до недели',
+                    '1–2 недели',
+                    'более 2 недель',
+                    'Не сталкивался(ась)'
+                ]
+            },
+            {
+                id: 'q12',
+                number: 12,
+                title: 'Слышали ли вы ранее о поясничных бандажах с инфракрасным излучением?',
+                type: 'single',
+                options: [
+                    'Да, использовал(а)',
+                    'Да, слышал(а), но не использовал(а)',
+                    'Нет, не слышал(а)'
+                ]
+            },
+            {
+                id: 'q13',
+                number: 13,
+                title: 'Насколько удобным вам кажется использование такого бандажа во время тренировочного процесса или сразу после него?',
+                type: 'single',
+                options: [
+                    'Очень удобно',
+                    'Скорее удобно',
+                    'Скорее неудобно',
+                    'Очень неудобно',
+                    'Затрудняюсь ответить'
+                ]
+            },
+            {
+                id: 'q14',
+                number: 14,
+                title: 'Готовы ли вы были бы применять ИК-бандаж в составе профилактики или лечения?',
+                type: 'single',
+                options: ['Да, безусловно', 'Скорее да', 'Скорее нет', 'Нет']
+            },
+            {
+                id: 'q15',
+                number: 15,
+                title: 'Что для вас важнее всего в средстве для поясницы?',
+                subtitle: 'Выберите НЕ БОЛЕЕ 2 вариантов',
+                type: 'multiple',
+                maxSelections: 2,
+                options: [
+                    'Быстрый обезболивающий эффект',
+                    'Удобство и мобильность',
+                    'Отсутствие медикаментов',
+                    'Возможность использовать самостоятельно дома',
+                    'Цена',
+                    'Рекомендация врача/тренера'
+                ]
+            }
+        ];
+
+        // Цвета для кнопок шкалы боли (0 - зеленый, 10 - темно-красный)
+        const PAIN_SCALE_COLORS = [
+            { bg: 'bg-emerald-500', border: 'border-emerald-500', text: 'text-emerald-700', lightBg: 'bg-emerald-50', desc: '0 — Нет боли' },
+            { bg: 'bg-emerald-400', border: 'border-emerald-400', text: 'text-emerald-700', lightBg: 'bg-emerald-50', desc: '1 — Минимальный дискомфорт' },
+            { bg: 'bg-lime-500', border: 'border-lime-500', text: 'text-lime-700', lightBg: 'bg-lime-50', desc: '2 — Очень слабая боль' },
+            { bg: 'bg-lime-600', border: 'border-lime-600', text: 'text-lime-800', lightBg: 'bg-lime-50', desc: '3 — Легкая заметная боль' },
+            { bg: 'bg-yellow-500', border: 'border-yellow-500', text: 'text-yellow-800', lightBg: 'bg-yellow-50', desc: '4 — Умеренная боль' },
+            { bg: 'bg-amber-500', border: 'border-amber-500', text: 'text-amber-800', lightBg: 'bg-amber-50', desc: '5 — Средняя отвлекающая боль' },
+            { bg: 'bg-orange-500', border: 'border-orange-500', text: 'text-orange-800', lightBg: 'bg-orange-50', desc: '6 — Ощутимая боль, мешает элементам' },
+            { bg: 'bg-orange-600', border: 'border-orange-600', text: 'text-orange-800', lightBg: 'bg-orange-50', desc: '7 — Сильная боль' },
+            { bg: 'bg-rose-500', border: 'border-rose-500', text: 'text-rose-800', lightBg: 'bg-rose-50', desc: '8 — Очень сильная боль, ограничивает движения' },
+            { bg: 'bg-rose-600', border: 'border-rose-600', text: 'text-rose-800', lightBg: 'bg-rose-50', desc: '9 — Острая интенсивная боль' },
+            { bg: 'bg-red-700', border: 'border-red-700', text: 'text-red-800', lightBg: 'bg-red-50', desc: '10 — Невыносимая боль' }
+        ];
+
+        // =========================================================================
+        // 2. СОСТОЯНИЕ И ОБЛАЧНАЯ СИНХРОНИЗАЦИЯ (FIRESTORE + GOOGLE SCRIPT BRIDGE)
+        // =========================================================================
+        let currentAnswers = createEmptyAnswers();
+        let allResponses = [];
+
+        // Состояние облачных провайдеров
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+        let appId = typeof __app_id !== 'undefined' ? __app_id : 'gymnast-ir-survey-app';
+        let cloudMode = 'memory'; // 'firestore' | 'gas' | 'memory'
+        let activeGasUrl = '';
+
+        function createEmptyAnswers() {
+            return {
+                q1: null,
+                q2: null,
+                q3: null,
+                q4: null,
+                q5: null,
+                q6: [],
+                q7: null,
+                q8: null,
+                q9: [],
+                q9_other: '',
+                q10: null,
+                q11: null,
+                q12: null,
+                q13: null,
+                q14: null,
+                q15: []
+            };
+        }
+
+        // Инициализация облачного хранилища
+        async function initCloudStorage() {
+            // 1. Проверяем параметр ?api= в адресной строке или константу CUSTOM_GOOGLE_SCRIPT_URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const paramApi = urlParams.get('api');
+            if (paramApi && paramApi.startsWith('https://script.google.com/')) {
+                activeGasUrl = paramApi.trim();
+            } else if (CUSTOM_GOOGLE_SCRIPT_URL && CUSTOM_GOOGLE_SCRIPT_URL.startsWith('https://script.google.com/')) {
+                activeGasUrl = CUSTOM_GOOGLE_SCRIPT_URL.trim();
+            }
+
+            if (activeGasUrl) {
+                const inputEl = document.getElementById('gas-url-input');
+                if (inputEl) inputEl.value = activeGasUrl;
+                cloudMode = 'gas';
+                updateCloudStatusUI(
+                    'emerald',
+                    'Облако Google Таблиц активно',
+                    'Все ответы по ссылке сохраняются в общую Google Таблицу и отображаются на сайте.'
+                );
+                await fetchFromGoogleScript();
+                return;
+            }
+
+            // 2. Проверяем наличие конфигурации Firebase (встроенной или пользовательской)
+            let firebaseConfig = null;
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                try {
+                    firebaseConfig = JSON.parse(__firebase_config);
+                } catch (e) {
+                    console.error('Ошибка чтения конфигурации Firebase:', e);
+                }
+            } else if (CUSTOM_FIREBASE_CONFIG) {
+                firebaseConfig = CUSTOM_FIREBASE_CONFIG;
+            }
+
+            if (firebaseConfig && firebaseConfig.apiKey) {
+                try {
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
+
+                    // RULE 3: Auth Before Queries
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    currentUser = auth.currentUser;
+                    onAuthStateChanged(auth, (u) => {
+                        currentUser = u;
+                    });
+
+                    if (currentUser) {
+                        cloudMode = 'firestore';
+                        updateCloudStatusUI(
+                            'emerald',
+                            'Облако активно (ответы со всех устройств)',
+                            'Подключена облачная база реального времени. Все ответы мгновенно синхронизируются.'
+                        );
+                        subscribeToFirestoreResponses();
+                        return;
+                    }
+                } catch (err) {
+                    console.error('Не удалось инициализировать Firebase Firestore:', err);
+                }
+            }
+
+            // 3. Резервный режим в памяти сессии (например, при открытии локального файла без настроенного URL)
+            cloudMode = 'memory';
+            updateCloudStatusUI(
+                'amber',
+                'Автономный режим (нажмите для настройки GitHub Pages)',
+                'Для сбора ответов с разных устройств на GitHub Pages подключите бесплатный скрипт Google Таблиц.'
+            );
+        }
+
+        // Подписка на коллекцию Firestore в реальном времени (RULE 1 & RULE 2)
+        function subscribeToFirestoreResponses() {
+            if (!currentUser || !db) return;
+
+            const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'gymnast_survey_responses');
+            onSnapshot(
+                colRef,
+                (snapshot) => {
+                    const loaded = [];
+                    snapshot.forEach((docSnap) => {
+                        const data = docSnap.data();
+                        loaded.push({
+                            ...data,
+                            id: docSnap.id
+                        });
+                    });
+                    // Сортируем в памяти по времени создания (RULE 2: без orderBy в запросе)
+                    loaded.sort((a, b) => (a.createdAtMs || 0) - (b.createdAtMs || 0));
+                    allResponses = loaded;
+                    updateHeaderBadge();
+                    renderStatsDashboard();
+                },
+                (error) => {
+                    console.error('Ошибка синхронизации с облаком:', error);
+                    showToast('Не удалось получить обновления из облачной базы', 'warning');
+                }
+            );
+        }
+
+        // Загрузка ответов из Google Apps Script (для GitHub Pages)
+        async function fetchFromGoogleScript() {
+            if (!activeGasUrl) return;
+            try {
+                const res = await fetch(activeGasUrl);
+                const json = await res.json();
+                if (json && Array.isArray(json.data)) {
+                    allResponses = json.data.sort((a, b) => (a.createdAtMs || 0) - (b.createdAtMs || 0));
+                    updateHeaderBadge();
+                    renderStatsDashboard();
+                }
+            } catch (err) {
+                console.error('Ошибка загрузки из Google Script:', err);
+                showToast('Не удалось загрузить базу из Google Script. Проверьте права доступа «Все».', 'warning');
+            }
+        }
+
+        // Сохранение одной анкеты в активное хранилище
+        async function saveSingleResponseToCloud(record) {
+            if (cloudMode === 'firestore' && db && currentUser) {
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'gymnast_survey_responses');
+                await addDoc(colRef, record);
+            } else if (cloudMode === 'gas' && activeGasUrl) {
+                allResponses.push(record);
+                updateHeaderBadge();
+                renderStatsDashboard();
+                await fetch(activeGasUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'add', item: record })
+                });
+            } else {
+                allResponses.push(record);
+                updateHeaderBadge();
+                renderStatsDashboard();
+            }
+        }
+
+        // Пакетное сохранение демо-анкет
+        async function saveBatchResponsesToCloud(records) {
+            if (cloudMode === 'firestore' && db && currentUser) {
+                const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'gymnast_survey_responses');
+                await Promise.all(records.map((rec) => addDoc(colRef, rec)));
+            } else if (cloudMode === 'gas' && activeGasUrl) {
+                allResponses.push(...records);
+                updateHeaderBadge();
+                renderStatsDashboard();
+                await fetch(activeGasUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'addBatch', items: records })
+                });
+            } else {
+                allResponses.push(...records);
+                updateHeaderBadge();
+                renderStatsDashboard();
+            }
+        }
+
+        // Удаление одной анкеты по её идентификатору или индексу
+        async function deleteSingleResponse(docId, fallbackIndex) {
+            try {
+                if (cloudMode === 'firestore' && db && currentUser && docId) {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'gymnast_survey_responses', docId);
+                    await deleteDoc(docRef);
+                    showToast('Анкета удалена из облачной базы', 'info');
+                } else {
+                    allResponses.splice(fallbackIndex, 1);
+                    updateHeaderBadge();
+                    renderStatsDashboard();
+                    showToast('Запись удалена', 'info');
+                }
+            } catch (e) {
+                console.error('Ошибка удаления анкеты:', e);
+                showToast('Не удалось удалить запись', 'error');
+            }
+        }
+
+        function updateCloudStatusUI(color, badgeText, modalDesc) {
+            const badge = document.getElementById('cloud-status-badge');
+            const dot = document.getElementById('cloud-status-dot');
+            const text = document.getElementById('cloud-status-text');
+            const modalDot = document.getElementById('modal-status-dot');
+            const modalTitle = document.getElementById('modal-status-title');
+            const modalDescEl = document.getElementById('modal-status-desc');
+
+            if (color === 'emerald') {
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition cursor-pointer';
+                dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse';
+                if (modalDot) modalDot.className = 'w-3 h-3 rounded-full bg-emerald-500 shrink-0';
+            } else {
+                badge.className = 'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-800 border border-amber-200 hover:bg-amber-100 transition cursor-pointer';
+                dot.className = 'w-2 h-2 rounded-full bg-amber-500';
+                if (modalDot) modalDot.className = 'w-3 h-3 rounded-full bg-amber-500 shrink-0';
+            }
+
+            if (text) text.textContent = badgeText;
+            if (modalTitle) modalTitle.textContent = badgeText;
+            if (modalDescEl) modalDescEl.textContent = modalDesc;
+        }
+
+        // =========================================================================
+        // 3. РЕНДЕРИНГ ФОРМЫ ОПРОСА
+        // =========================================================================
+        function renderSurveyForm() {
+            const container = document.getElementById('questions-container');
+            container.innerHTML = '';
+
+            SURVEY_QUESTIONS.forEach((q) => {
+                const isAnswered = checkQuestionAnswered(q.id);
+                const card = document.createElement('div');
+                card.id = `card-${q.id}`;
+                card.className = `bg-white rounded-2xl border border-slate-200 p-5 sm:p-6 shadow-xs transition-all`;
+
+                // Заголовок вопроса
+                let headerHTML = `
+                    <div class="flex items-start justify-between gap-3 mb-4">
+                        <div class="flex items-start gap-3">
+                            <span id="badge-${q.id}" class="w-7 h-7 rounded-lg text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5 transition-colors ${isAnswered ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-700'}">
+                                ${q.number}
+                            </span>
+                            <div>
+                                <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-snug">${q.title}</h3>
+                                ${q.subtitle ? `<p class="text-xs text-slate-500 mt-0.5">${q.subtitle}</p>` : ''}
+                            </div>
+                        </div>
+                        ${q.maxSelections ? `
+                            <span id="counter-${q.id}" class="shrink-0 text-[11px] font-bold px-2.5 py-1 rounded-full ${currentAnswers[q.id].length === q.maxSelections ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600'}">
+                                ${currentAnswers[q.id].length} из ${q.maxSelections}
+                            </span>
+                        ` : ''}
+                    </div>
+                `;
+
+                // Тело вопроса в зависимости от типа
+                let bodyHTML = '';
+
+                if (q.type === 'single') {
+                    const gridCols = q.options.length <= 4 ? 'sm:grid-cols-2' : 'sm:grid-cols-1';
+                    bodyHTML = `<div class="grid grid-cols-1 ${gridCols} gap-2.5">`;
+                    q.options.forEach((opt) => {
+                        const selected = currentAnswers[q.id] === opt;
+                        bodyHTML += `
+                            <button type="button"
+                                onclick="selectSingleOption('${q.id}', '${escapeQuotes(opt)}')"
+                                class="option-card text-left p-3.5 rounded-xl border border-slate-200 flex items-center gap-3 cursor-pointer ${selected ? 'selected' : ''}">
+                                <span class="w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${selected ? 'border-indigo-600 bg-indigo-600' : 'border-slate-300 bg-white'}">
+                                    ${selected ? '<span class="w-2 h-2 rounded-full bg-white"></span>' : ''}
+                                </span>
+                                <span class="text-xs sm:text-sm font-medium ${selected ? 'text-indigo-950 font-semibold' : 'text-slate-700'}">${opt}</span>
+                            </button>
+                        `;
+                    });
+                    bodyHTML += `</div>`;
+                } else if (q.type === 'multiple') {
+                    const selectedList = currentAnswers[q.id] || [];
+                    const maxReached = q.maxSelections && selectedList.length >= q.maxSelections;
+
+                    bodyHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">`;
+                    q.options.forEach((opt) => {
+                        const selected = selectedList.includes(opt);
+                        const disabled = !selected && maxReached;
+                        bodyHTML += `
+                            <button type="button"
+                                onclick="toggleMultipleOption('${q.id}', '${escapeQuotes(opt)}')"
+                                class="option-card text-left p-3.5 rounded-xl border border-slate-200 flex items-center gap-3 cursor-pointer ${selected ? 'selected' : ''} ${disabled ? 'disabled-option' : ''}">
+                                <span class="w-5 h-5 rounded-md border flex items-center justify-center shrink-0 ${selected ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-slate-300 bg-white'}">
+                                    ${selected ? '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' : ''}
+                                </span>
+                                <span class="text-xs sm:text-sm font-medium ${selected ? 'text-indigo-950 font-semibold' : 'text-slate-700'}">${opt}</span>
+                            </button>
+                        `;
+                    });
+                    bodyHTML += `</div>`;
+
+                    // Поле ввода для «Другое» в 9 вопросе
+                    if (q.hasOtherInput) {
+                        const showOther = selectedList.includes(q.otherOptionLabel);
+                        bodyHTML += `
+                            <div id="other-input-wrap-${q.id}" class="${showOther ? 'mt-3 block' : 'hidden'}">
+                                <input type="text"
+                                    id="other-input-${q.id}"
+                                    value="${escapeHtml(currentAnswers.q9_other || '')}"
+                                    oninput="handleOtherInput(this.value)"
+                                    placeholder="Укажите ваш вариант (необязательно)..."
+                                    class="w-full px-4 py-2.5 rounded-xl border border-indigo-300 bg-indigo-50/30 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                />
+                            </div>
+                        `;
+                    }
+                } else if (q.type === 'scale') {
+                    const selectedVal = currentAnswers[q.id];
+                    bodyHTML = `
+                        <div class="grid grid-cols-6 sm:grid-cols-11 gap-2">
+                            ${q.options.map((val) => {
+                                const num = parseInt(val, 10);
+                                const isSel = selectedVal === val;
+                                const colorObj = PAIN_SCALE_COLORS[num];
+                                return `
+                                    <button type="button"
+                                        onclick="selectScaleOption('${q.id}', '${val}')"
+                                        class="h-12 rounded-xl font-bold text-sm border transition-all flex flex-col items-center justify-center cursor-pointer ${
+                                            isSel
+                                                ? `${colorObj.bg} ${colorObj.border} text-white shadow-md scale-105`
+                                                : `bg-white border-slate-200 text-slate-700 hover:border-slate-400`
+                                        }">
+                                        <span>${val}</span>
+                                        <span class="w-4 h-1 rounded-full mt-1 ${isSel ? 'bg-white/80' : colorObj.bg}"></span>
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+                        <div class="flex justify-between items-center text-[11px] text-slate-500 mt-2 px-1">
+                            <span class="text-emerald-700 font-medium">0 — Нет боли</span>
+                            <span class="text-amber-700 font-medium hidden sm:inline">5 — Умеренная</span>
+                            <span class="text-rose-700 font-medium">10 — Невыносимая</span>
+                        </div>
+                        ${selectedVal !== null ? `
+                            <div class="mt-3 px-3.5 py-2 rounded-xl ${PAIN_SCALE_COLORS[parseInt(selectedVal, 10)].lightBg} ${PAIN_SCALE_COLORS[parseInt(selectedVal, 10)].text} text-xs font-semibold inline-flex items-center gap-2">
+                                <span>Выбрана оценка: ${PAIN_SCALE_COLORS[parseInt(selectedVal, 10)].desc}</span>
+                            </div>
+                        ` : ''}
+                    `;
+                }
+
+                card.innerHTML = headerHTML + bodyHTML;
+                container.appendChild(card);
+            });
+
+            updateProgressBar();
+        }
+
+        // =========================================================================
+        // 4. ОБРАБОТЧИКИ ВЫБОРА ОТВЕТОВ И ЛОГИКА ОГРАНИЧЕНИЙ
+        // =========================================================================
+        function selectSingleOption(questionId, optionValue) {
+            currentAnswers[questionId] = optionValue;
+
+            // Если в 5 вопросе выбрано «Никогда», и 6 вопрос еще пуст, автоматически отмечаем «Боль не возникает»
+            if (questionId === 'q5' && optionValue === 'Никогда' && currentAnswers.q6.length === 0) {
+                currentAnswers.q6 = ['Боль не возникает'];
+            }
+
+            renderSurveyForm();
+            hideValidationBannerIfValid();
+        }
+
+        function selectScaleOption(questionId, val) {
+            currentAnswers[questionId] = val;
+            renderSurveyForm();
+            hideValidationBannerIfValid();
+        }
+
+        function toggleMultipleOption(questionId, optionValue) {
+            const q = SURVEY_QUESTIONS.find((item) => item.id === questionId);
+            let list = [...(currentAnswers[questionId] || [])];
+
+            if (list.includes(optionValue)) {
+                list = list.filter((item) => item !== optionValue);
+            } else {
+                if (q.exclusiveOption) {
+                    if (optionValue === q.exclusiveOption) {
+                        list = [q.exclusiveOption];
+                    } else {
+                        list = list.filter((item) => item !== q.exclusiveOption);
+                        list.push(optionValue);
+                    }
+                } else if (q.maxSelections) {
+                    if (list.length >= q.maxSelections) {
+                        showToast(`В вопросе №${q.number} можно выбрать не более ${q.maxSelections} вариантов`, 'warning');
+                        return;
+                    }
+                    list.push(optionValue);
+                } else {
+                    list.push(optionValue);
+                }
+            }
+
+            currentAnswers[questionId] = list;
+            renderSurveyForm();
+            hideValidationBannerIfValid();
+
+            if (questionId === 'q9' && optionValue === 'Другое' && list.includes('Другое')) {
+                const input = document.getElementById('other-input-q9');
+                if (input) input.focus();
+            }
+        }
+
+        function handleOtherInput(val) {
+            currentAnswers.q9_other = val;
+        }
+
+        function checkQuestionAnswered(qId) {
+            const val = currentAnswers[qId];
+            if (Array.isArray(val)) return val.length > 0;
+            return val !== null && val !== '';
+        }
+
+        function updateProgressBar() {
+            let answeredCount = 0;
+            SURVEY_QUESTIONS.forEach((q) => {
+                if (checkQuestionAnswered(q.id)) answeredCount++;
+            });
+
+            const total = SURVEY_QUESTIONS.length;
+            const percent = Math.round((answeredCount / total) * 100);
+
+            document.getElementById('progress-text').textContent = `${answeredCount} из ${total}`;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('progress-percent').textContent = `${percent}%`;
+        }
+
+        function hideValidationBannerIfValid() {
+            const missing = SURVEY_QUESTIONS.filter((q) => !checkQuestionAnswered(q.id));
+            if (missing.length === 0) {
+                document.getElementById('validation-banner').classList.add('hidden');
+            }
+        }
+
+        // =========================================================================
+        // 5. ОТПРАВКА И СБРОС АНКЕТЫ
+        // =========================================================================
+        async function handleSurveySubmit(event) {
+            event.preventDefault();
+
+            const missing = SURVEY_QUESTIONS.filter((q) => !checkQuestionAnswered(q.id));
+            if (missing.length > 0) {
+                const missingNums = missing.map((q) => `№${q.number}`).join(', ');
+                const banner = document.getElementById('validation-banner');
+                document.getElementById('validation-missing-list').textContent = `Пропущены вопросы: ${missingNums}`;
+                banner.classList.remove('hidden');
+
+                const firstMissingCard = document.getElementById(`card-${missing[0].id}`);
+                if (firstMissingCard) {
+                    firstMissingCard.classList.remove('border-slate-200');
+                    firstMissingCard.classList.add('border-rose-400', 'ring-2', 'ring-rose-200');
+                    firstMissingCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                showToast(`Пожалуйста, ответьте на пропущенные вопросы (${missing.length} шт.)`, 'error');
+                return;
+            }
+
+            const btn = document.getElementById('submit-survey-btn');
+            const btnText = document.getElementById('submit-survey-btn-text');
+            btn.disabled = true;
+            btnText.textContent = 'Сохранение в базу...';
+
+            try {
+                const savedRecord = JSON.parse(JSON.stringify(currentAnswers));
+                savedRecord.timestamp = new Date().toLocaleString('ru-RU');
+                savedRecord.createdAtMs = Date.now();
+
+                await saveSingleResponseToCloud(savedRecord);
+
+                document.getElementById('survey-form').classList.add('hidden');
+                document.getElementById('thank-you-screen').classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                showToast('Анкета успешно сохранена в общей базе!', 'success');
+            } catch (error) {
+                console.error('Ошибка отправки анкеты:', error);
+                showToast('Ошибка при сохранении ответа. Попробуйте еще раз.', 'error');
+            } finally {
+                btn.disabled = false;
+                btnText.textContent = 'Отправить ответы';
+            }
+        }
+
+        function startNewSurvey() {
+            currentAnswers = createEmptyAnswers();
+            document.getElementById('validation-banner').classList.add('hidden');
+            document.getElementById('thank-you-screen').classList.add('hidden');
+            document.getElementById('survey-form').classList.remove('hidden');
+            renderSurveyForm();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetFormWithConfirm() {
+            currentAnswers = createEmptyAnswers();
+            document.getElementById('validation-banner').classList.add('hidden');
+            renderSurveyForm();
+            showToast('Форма анкеты очищена', 'info');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // =========================================================================
+        // 6. ГЕНЕРАТОР РЕАЛИСТИЧНЫХ ДЕМО-ОТВЕТОВ (ЗАПИСЬ В ОБЛАЧНУЮ БАЗУ)
+        // =========================================================================
+        function weightedPick(items) {
+            const totalWeight = items.reduce((acc, item) => acc + item.w, 0);
+            let r = Math.random() * totalWeight;
+            for (const item of items) {
+                if (r < item.w) return item.v;
+                r -= item.w;
+            }
+            return items[0].v;
+        }
+
+        async function generateDemoResponses(count = 30) {
+            const btn = document.getElementById('btn-generate-demo');
+            if (btn) btn.disabled = true;
+            showToast(`Генерация и сохранение ${count} анкет в базу...`, 'info');
+
+            const batch = [];
+            const baseTime = Date.now() - count * 60000;
+
+            for (let i = 0; i < count; i++) {
+                const q1 = weightedPick([
+                    { v: 'Женский', w: 72 },
+                    { v: 'Мужской', w: 28 }
+                ]);
+
+                const q2 = weightedPick([
+                    { v: 'до 14 лет', w: 18 },
+                    { v: '14–17 лет', w: 42 },
+                    { v: '18–22 года', w: 30 },
+                    { v: '23 и старше', w: 10 }
+                ]);
+
+                let q3, q4;
+                if (q2 === 'до 14 лет') {
+                    q3 = weightedPick([
+                        { v: 'Начинающий (до 1 разряда)', w: 55 },
+                        { v: 'КМС / 1 разряд', w: 42 },
+                        { v: 'МС и выше', w: 3 }
+                    ]);
+                    q4 = weightedPick([
+                        { v: 'менее 3 лет', w: 35 },
+                        { v: '3–7 лет', w: 55 },
+                        { v: '8–12 лет', w: 10 }
+                    ]);
+                } else if (q2 === '14–17 лет') {
+                    q3 = weightedPick([
+                        { v: 'Начинающий (до 1 разряда)', w: 15 },
+                        { v: 'КМС / 1 разряд', w: 60 },
+                        { v: 'МС и выше', w: 25 }
+                    ]);
+                    q4 = weightedPick([
+                        { v: 'менее 3 лет', w: 8 },
+                        { v: '3–7 лет', w: 42 },
+                        { v: '8–12 лет', w: 45 },
+                        { v: 'более 12 лет', w: 5 }
+                    ]);
+                } else {
+                    q3 = weightedPick([
+                        { v: 'Начинающий (до 1 разряда)', w: 8 },
+                        { v: 'КМС / 1 разряд', w: 42 },
+                        { v: 'МС и выше', w: 50 }
+                    ]);
+                    q4 = weightedPick([
+                        { v: '3–7 лет', w: 20 },
+                        { v: '8–12 лет', w: 45 },
+                        { v: 'более 12 лет', w: 35 }
+                    ]);
+                }
+
+                const q5 = weightedPick([
+                    { v: 'Никогда', w: 10 },
+                    { v: 'Редко (1–2 раза в год)', w: 20 },
+                    { v: 'Иногда (1–2 раза в месяц)', w: 36 },
+                    { v: 'Часто (еженедельно)', w: 24 },
+                    { v: 'Постоянно', w: 10 }
+                ]);
+
+                let q6 = [];
+                let q7, q8, q9 = [], q10, q11;
+
+                if (q5 === 'Никогда') {
+                    q6 = ['Боль не возникает'];
+                    q7 = weightedPick([
+                        { v: 'Нет', w: 80 },
+                        { v: 'Скорее нет', w: 20 }
+                    ]);
+                    q8 = '0';
+                    q9 = ['Ничего не делаю, проходит само'];
+                    q10 = 'Нет, не обращался';
+                    q11 = 'Не сталкивался(ась)';
+                } else {
+                    const possibleQ6 = [
+                        { v: 'При выполнении конкретных элементов', p: 0.68 },
+                        { v: 'После тренировки', p: 0.58 },
+                        { v: 'Во время тренировки', p: 0.45 },
+                        { v: 'Утром после сна', p: 0.25 }
+                    ];
+                    possibleQ6.forEach((item) => {
+                        if (Math.random() < item.p) q6.push(item.v);
+                    });
+                    if (q6.length === 0) q6.push('После тренировки');
+
+                    q7 = weightedPick([
+                        { v: 'Да, четко связываю', w: 52 },
+                        { v: 'Скорее да', w: 33 },
+                        { v: 'Скорее нет', w: 10 },
+                        { v: 'Нет', w: 5 }
+                    ]);
+
+                    if (q5 === 'Редко (1–2 раза в год)') {
+                        q8 = String(weightedPick([{ v: 2, w: 30 }, { v: 3, w: 40 }, { v: 4, w: 30 }]));
+                    } else if (q5 === 'Иногда (1–2 раза в месяц)') {
+                        q8 = String(weightedPick([{ v: 4, w: 25 }, { v: 5, w: 40 }, { v: 6, w: 25 }, { v: 7, w: 10 }]));
+                    } else if (q5 === 'Часто (еженедельно)') {
+                        q8 = String(weightedPick([{ v: 5, w: 20 }, { v: 6, w: 35 }, { v: 7, w: 30 }, { v: 8, w: 15 }]));
+                    } else {
+                        q8 = String(weightedPick([{ v: 7, w: 35 }, { v: 8, w: 40 }, { v: 9, w: 20 }, { v: 10, w: 5 }]));
+                    }
+
+                    const possibleQ9 = [
+                        { v: 'Массаж / мануальная терапия', p: 0.55 },
+                        { v: 'Обезболивающие мази / НПВС', p: 0.52 },
+                        { v: 'Отдых / прекращение нагрузки', p: 0.44 },
+                        { v: 'Кинезиотейпирование', p: 0.42 },
+                        { v: 'Тепловые процедуры (грелка, баня)', p: 0.35 },
+                        { v: 'Физиотерапия (в кабинете)', p: 0.22 },
+                        { v: 'Ничего не делаю, проходит само', p: 0.14 }
+                    ];
+                    possibleQ9.forEach((item) => {
+                        if (Math.random() < item.p) q9.push(item.v);
+                    });
+                    if (q9.length === 0) q9.push('Отдых / прекращение нагрузки');
+
+                    q10 = weightedPick([
+                        { v: 'Да, и был поставлен диагноз', w: 32 },
+                        { v: 'Да, но без четкого диагноза', w: 38 },
+                        { v: 'Нет, не обращался', w: 30 }
+                    ]);
+
+                    q11 = weightedPick([
+                        { v: '1–2 дня', w: 28 },
+                        { v: 'до недели', w: 38 },
+                        { v: '1–2 недели', w: 22 },
+                        { v: 'более 2 недель', w: 12 }
+                    ]);
+                }
+
+                const q12 = weightedPick([
+                    { v: 'Да, использовал(а)', w: 16 },
+                    { v: 'Да, слышал(а), но не использовал(а)', w: 46 },
+                    { v: 'Нет, не слышал(а)', w: 38 }
+                ]);
+
+                const q13 = weightedPick([
+                    { v: 'Очень удобно', w: 34 },
+                    { v: 'Скорее удобно', w: 44 },
+                    { v: 'Скорее неудобно', w: 8 },
+                    { v: 'Очень неудобно', w: 2 },
+                    { v: 'Затрудняюсь ответить', w: 12 }
+                ]);
+
+                const q14 = weightedPick([
+                    { v: 'Да, безусловно', w: 42 },
+                    { v: 'Скорее да', w: 43 },
+                    { v: 'Скорее нет', w: 11 },
+                    { v: 'Нет', w: 4 }
+                ]);
+
+                const criteriaPool = [
+                    { v: 'Быстрый обезболивающий эффект', w: 32 },
+                    { v: 'Удобство и мобильность', w: 28 },
+                    { v: 'Возможность использовать самостоятельно дома', w: 16 },
+                    { v: 'Рекомендация врача/тренера', w: 12 },
+                    { v: 'Отсутствие медикаментов', w: 7 },
+                    { v: 'Цена', w: 5 }
+                ];
+                const firstCrit = weightedPick(criteriaPool);
+                const secondPool = criteriaPool.filter((c) => c.v !== firstCrit);
+                const secondCrit = weightedPick(secondPool);
+                const q15 = [firstCrit, secondCrit];
+
+                const itemTime = new Date(baseTime + i * 60000);
+                batch.push({
+                    q1, q2, q3, q4, q5, q6, q7, q8, q9, q9_other: '', q10, q11, q12, q13, q14, q15,
+                    timestamp: itemTime.toLocaleString('ru-RU'),
+                    createdAtMs: itemTime.getTime()
+                });
+            }
+
+            try {
+                await saveBatchResponsesToCloud(batch);
+                showToast(`Добавлено ${count} реалистичных анкет в общую базу!`, 'success');
+            } catch (e) {
+                console.error('Ошибка пакетного сохранения:', e);
+                showToast('Не удалось сохранить демо-анкеты в облако', 'error');
+            } finally {
+                if (btn) btn.disabled = false;
+            }
+        }
+
+        function openClearConfirmModal() {
+            if (allResponses.length === 0) {
+                showToast('База ответов уже пуста', 'info');
+                return;
+            }
+            document.getElementById('confirm-clear-modal').classList.remove('hidden');
+        }
+
+        function closeClearConfirmModal() {
+            document.getElementById('confirm-clear-modal').classList.add('hidden');
+        }
+
+        async function confirmClearAllResponses() {
+            closeClearConfirmModal();
+            try {
+                if (cloudMode === 'firestore' && db && currentUser) {
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'gymnast_survey_responses');
+                    const snap = await getDocs(colRef);
+                    const deletions = [];
+                    snap.forEach((d) => {
+                        deletions.push(deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'gymnast_survey_responses', d.id)));
+                    });
+                    await Promise.all(deletions);
+                } else if (cloudMode === 'gas' && activeGasUrl) {
+                    allResponses = [];
+                    updateHeaderBadge();
+                    renderStatsDashboard();
+                    await fetch(activeGasUrl, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'clear' })
+                    });
+                } else {
+                    allResponses = [];
+                    updateHeaderBadge();
+                    renderStatsDashboard();
+                }
+                showToast('База ответов полностью очищена', 'info');
+            } catch (e) {
+                console.error('Ошибка при очистке базы:', e);
+                showToast('Ошибка при удалении записей из облака', 'error');
+            }
+        }
+
+        // =========================================================================
+        // 7. ДАШБОРД СТАТИСТИКИ И ТАБЛИЦА ВСЕХ ОТВЕТОВ
+        // =========================================================================
+        function updateHeaderBadge() {
+            document.getElementById('header-response-badge').textContent = allResponses.length;
+        }
+
+        function renderStatsDashboard() {
+            const total = allResponses.length;
+            const emptyState = document.getElementById('stats-empty-state');
+            const contentWrap = document.getElementById('stats-content-wrapper');
+
+            document.getElementById('kpi-total').textContent = total;
+
+            if (total === 0) {
+                emptyState.classList.remove('hidden');
+                contentWrap.classList.add('hidden');
+                document.getElementById('kpi-pain-share').textContent = '0%';
+                document.getElementById('kpi-pain-count').textContent = '(0 чел.)';
+                document.getElementById('kpi-avg-pain').textContent = '0.0';
+                document.getElementById('kpi-ir-ready').textContent = '0%';
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            contentWrap.classList.remove('hidden');
+
+            // Расчет KPI
+            const withPainCount = allResponses.filter((r) => r.q5 !== 'Никогда').length;
+            const withPainPercent = Math.round((withPainCount / total) * 100);
+
+            const sumPain = allResponses.reduce((acc, r) => acc + (parseInt(r.q8, 10) || 0), 0);
+            const avgPain = (sumPain / total).toFixed(1);
+
+            const readyIRCount = allResponses.filter(
+                (r) => r.q14 === 'Да, безусловно' || r.q14 === 'Скорее да'
+            ).length;
+            const readyIRPercent = Math.round((readyIRCount / total) * 100);
+
+            document.getElementById('kpi-pain-share').textContent = `${withPainPercent}%`;
+            document.getElementById('kpi-pain-count').textContent = `(${withPainCount} из ${total})`;
+            document.getElementById('kpi-avg-pain').textContent = avgPain;
+            document.getElementById('kpi-ir-ready').textContent = `${readyIRPercent}%`;
+
+            // Генерация текста аналитического вывода для диплома/курсовой
+            const linkedToElementsCount = allResponses.filter(
+                (r) => r.q7 === 'Да, четко связываю' || r.q7 === 'Скорее да'
+            ).length;
+            const linkedToElementsPercent = Math.round((linkedToElementsCount / total) * 100);
+
+            const convenientCount = allResponses.filter(
+                (r) => r.q13 === 'Очень удобно' || r.q13 === 'Скорее удобно'
+            ).length;
+            const convenientPercent = Math.round((convenientCount / total) * 100);
+
+            document.getElementById('auto-summary-text').textContent =
+                `По результатам проведенного анкетирования (${total} респондентов) установлено, что ${withPainPercent}% (${withPainCount} чел.) гимнастов периодически или постоянно испытывают боли в поясничном отделе позвоночника, при этом средняя интенсивность болевого синдрома за последний месяц составила ${avgPain} из 10 баллов. ` +
+                `Большинство опрошенных (${linkedToElementsPercent}%) связывают возникновение боли с выполнением специфических гимнастических элементов (мостик, прогибы, скручивания). ` +
+                `При оценке перспектив применения инфракрасных (ИК) поясничных бандажей ${convenientPercent}% спортсменов отметили удобство их использования в тренировочном процессе, а ${readyIRPercent}% (${readyIRCount} чел.) выразили готовность применять ИК-бандаж для профилактики и восстановления.`;
+
+            // Рендеринг карточек диаграмм для всех 15 вопросов
+            const chartsGrid = document.getElementById('charts-grid');
+            chartsGrid.innerHTML = '';
+
+            SURVEY_QUESTIONS.forEach((q) => {
+                const card = document.createElement('div');
+                const spanFull = q.id === 'q8' || q.id === 'q9' ? 'md:col-span-2' : '';
+                card.className = `bg-white rounded-2xl border border-slate-200 p-5 shadow-xs flex flex-col justify-between ${spanFull}`;
+
+                const counts = {};
+                q.options.forEach((opt) => (counts[opt] = 0));
+
+                allResponses.forEach((resp) => {
+                    const ans = resp[q.id];
+                    if (Array.isArray(ans)) {
+                        ans.forEach((item) => {
+                            if (counts[item] !== undefined) counts[item]++;
+                        });
+                    } else if (ans !== null && ans !== undefined && counts[ans] !== undefined) {
+                        counts[ans]++;
+                    }
+                });
+
+                let chartBody = '';
+
+                if (q.type === 'scale') {
+                    const maxCount = Math.max(1, ...Object.values(counts));
+                    chartBody = `
+                        <div class="mt-4 pt-4 border-t border-slate-100">
+                            <div class="grid grid-cols-11 gap-1.5 sm:gap-2 items-end h-40 pt-6 px-1">
+                                ${q.options.map((opt) => {
+                                    const c = counts[opt] || 0;
+                                    const pct = Math.round((c / total) * 100);
+                                    const heightPct = Math.round((c / maxCount) * 100);
+                                    const colorObj = PAIN_SCALE_COLORS[parseInt(opt, 10)];
+                                    return `
+                                        <div class="flex flex-col items-center justify-end h-full group">
+                                            <span class="text-[10px] font-bold text-slate-600 mb-1">${c > 0 ? `${c}` : ''}</span>
+                                            <div class="w-full bg-slate-100 rounded-t-lg flex items-end justify-center h-28 overflow-hidden">
+                                                <div class="w-full ${colorObj.bg} rounded-t-lg transition-all duration-500" style="height: ${Math.max(c > 0 ? 10 : 2, heightPct)}%"></div>
+                                            </div>
+                                            <span class="text-xs font-bold text-slate-800 mt-1.5">${opt}</span>
+                                            <span class="text-[10px] text-slate-400">${pct}%</span>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    chartBody = `<div class="space-y-2.5 mt-3">`;
+                    q.options.forEach((opt) => {
+                        const c = counts[opt] || 0;
+                        const pct = Math.round((c / total) * 100);
+                        chartBody += `
+                            <div>
+                                <div class="flex items-center justify-between text-xs mb-1 gap-2">
+                                    <span class="font-medium text-slate-700 truncate" title="${escapeHtml(opt)}">${opt}</span>
+                                    <span class="font-bold text-slate-900 shrink-0">${c} чел. <span class="text-indigo-600">(${pct}%)</span></span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                                    <div class="bg-gradient-to-r from-indigo-600 to-indigo-500 h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    chartBody += `</div>`;
+                }
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-start justify-between gap-2 mb-2">
+                            <span class="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 text-xs font-extrabold">Вопрос ${q.number}</span>
+                            <span class="text-[11px] text-slate-400 font-medium">${q.type === 'multiple' ? 'Множественный выбор' : q.type === 'scale' ? 'Шкала 0–10' : 'Один вариант'}</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-900 leading-snug">${q.title}</h4>
+                        ${chartBody}
+                    </div>
+                `;
+                chartsGrid.appendChild(card);
+            });
+
+            renderResponsesTable();
+        }
+
+        function renderResponsesTable() {
+            const tbody = document.getElementById('responses-table-body');
+            document.getElementById('table-count-label').textContent = `${allResponses.length} записей`;
+            tbody.innerHTML = '';
+
+            allResponses.slice().reverse().forEach((r, idx) => {
+                const originalIndex = allResponses.length - 1 - idx;
+                const num = allResponses.length - idx;
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition-colors';
+                const q9Text = (r.q9 || []).join(', ') + (r.q9_other ? ` (${r.q9_other})` : '');
+
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3 font-bold text-slate-500 whitespace-nowrap">#${num}</td>
+                    <td class="py-2.5 px-3 text-[11px] text-slate-500 whitespace-nowrap">${escapeHtml(r.timestamp || '—')}</td>
+                    <td class="py-2.5 px-3 whitespace-nowrap">
+                        <span class="font-semibold text-slate-900">${escapeHtml(r.q1 || '')}</span>
+                        <span class="block text-[11px] text-slate-500">${escapeHtml(r.q2 || '')}</span>
+                    </td>
+                    <td class="py-2.5 px-3 whitespace-nowrap">
+                        <span class="font-medium text-slate-800">${escapeHtml(r.q3 || '')}</span>
+                        <span class="block text-[11px] text-slate-500">Стаж: ${escapeHtml(r.q4 || '')}</span>
+                    </td>
+                    <td class="py-2.5 px-3 whitespace-nowrap">${escapeHtml(r.q5 || '')}</td>
+                    <td class="py-2.5 px-3 text-[11px] text-slate-600">${escapeHtml((r.q6 || []).join(', '))}</td>
+                    <td class="py-2.5 px-3 whitespace-nowrap">${escapeHtml(r.q7 || '')}</td>
+                    <td class="py-2.5 px-3 whitespace-nowrap">
+                        <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-md font-bold text-white ${PAIN_SCALE_COLORS[parseInt(r.q8, 10) || 0].bg}">
+                            ${escapeHtml(r.q8 || '0')} / 10
+                        </span>
+                    </td>
+                    <td class="py-2.5 px-3 text-[11px] text-slate-600">${escapeHtml(q9Text)}</td>
+                    <td class="py-2.5 px-3 whitespace-nowrap">${escapeHtml(r.q10 || '')}</td>
+                    <td class="py-2.5 px-3 whitespace-nowrap">${escapeHtml(r.q11 || '')}</td>
+                    <td class="py-2.5 px-3 whitespace-nowrap">${escapeHtml(r.q12 || '')}</td>
+                    <td class="py-2.5 px-3 whitespace-nowrap">${escapeHtml(r.q13 || '')}</td>
+                    <td class="py-2.5 px-3 font-medium whitespace-nowrap">${escapeHtml(r.q14 || '')}</td>
+                    <td class="py-2.5 px-3 text-[11px] text-slate-600">${escapeHtml((r.q15 || []).join(', '))}</td>
+                    <td class="py-2.5 px-3 text-center">
+                        <button type="button" onclick="deleteSingleResponse('${r.id || ''}', ${originalIndex})" class="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer" title="Удалить эту анкету">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // =========================================================================
+        // 8. ВЫГРУЗКА В ТАБЛИЦЫ EXCEL (.XLS), CSV, JSON И КОПИРОВАНИЕ ССЫЛКИ
+        // =========================================================================
+        function exportToExcelXLS() {
+            if (allResponses.length === 0) {
+                showToast('Нет данных для выгрузки. Сначала добавьте или сгенерируйте анкеты!', 'warning');
+                return;
+            }
+
+            let tableRowsHTML = '';
+            allResponses.forEach((r, idx) => {
+                const q9Text = (r.q9 || []).join('; ') + (r.q9_other ? ` (${r.q9_other})` : '');
+                tableRowsHTML += `
+                    <tr>
+                        <td style="border:1px solid #cbd5e1; padding:6px; text-align:center;">${idx + 1}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml(r.timestamp || '')}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml(r.q1 || '')}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml(r.q2 || '')}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml(r.q3 || '')}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml(r.q4 || '')}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml(r.q5 || '')}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml((r.q6 || []).join('; '))}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml(r.q7 || '')}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px; text-align:center; font-weight:bold;">${escapeHtml(r.q8 || '0')}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml(q9Text)}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml(r.q10 || '')}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml(r.q11 || '')}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml(r.q12 || '')}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml(r.q13 || '')}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml(r.q14 || '')}</td>
+                        <td style="border:1px solid #cbd5e1; padding:6px;">${escapeHtml((r.q15 || []).join('; '))}</td>
+                    </tr>
+                `;
+            });
+
+            const xlsTemplate = `
+                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+                <head>
+                    <meta charset="UTF-8">
+                    <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Результаты опроса</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+                </head>
+                <body>
+                    <h3 style="font-family:Arial,sans-serif;">Результаты анкетирования гимнастов: боли в пояснице и применение ИК-бандажей (Всего: ${allResponses.length})</h3>
+                    <p style="font-family:Arial,sans-serif; font-size:12px;">${escapeHtml(document.getElementById('auto-summary-text').textContent)}</p>
+                    <table style="border-collapse:collapse; font-family:Arial,sans-serif; font-size:12px;">
+                        <thead>
+                            <tr style="background-color:#4f46e5; color:#ffffff; font-weight:bold;">
+                                <th style="border:1px solid #3730a3; padding:8px;">№</th>
+                                <th style="border:1px solid #3730a3; padding:8px;">Дата и время</th>
+                                ${SURVEY_QUESTIONS.map((q) => `<th style="border:1px solid #3730a3; padding:8px;">${q.number}. ${escapeHtml(q.title)}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRowsHTML}
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `;
+
+            const blob = new Blob(['\uFEFF' + xlsTemplate], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `opros_gimnastov_baza_${allResponses.length}.xls`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast('Оформленная таблица Excel (.xls) успешно скачана!', 'success');
+        }
+
+        function exportToCSV() {
+            if (allResponses.length === 0) {
+                showToast('Нет данных для экспорта. Сначала добавьте или сгенерируйте ответы!', 'warning');
+                return;
+            }
+
+            const headers = [
+                '№',
+                'Дата и время',
+                ...SURVEY_QUESTIONS.map((q) => `${q.number}. ${q.title}`)
+            ];
+
+            const rows = allResponses.map((r, index) => {
+                const cols = [
+                    index + 1,
+                    r.timestamp || '',
+                    r.q1 || '',
+                    r.q2 || '',
+                    r.q3 || '',
+                    r.q4 || '',
+                    r.q5 || '',
+                    (r.q6 || []).join(' | '),
+                    r.q7 || '',
+                    r.q8 || '',
+                    (r.q9 || []).join(' | ') + (r.q9_other ? ` (${r.q9_other})` : ''),
+                    r.q10 || '',
+                    r.q11 || '',
+                    r.q12 || '',
+                    r.q13 || '',
+                    r.q14 || '',
+                    (r.q15 || []).join(' | ')
+                ];
+                return cols.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(';');
+            });
+
+            const csvContent = '\uFEFF' + headers.map((h) => `"${h.replace(/"/g, '""')}"`).join(';') + '\r\n' + rows.join('\r\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `opros_gimnastov_ik_bandazh_${allResponses.length}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast('Файл CSV (для Excel) успешно скачан!', 'success');
+        }
+
+        function exportToJSON() {
+            if (allResponses.length === 0) {
+                showToast('База ответов пуста', 'warning');
+                return;
+            }
+            const jsonStr = JSON.stringify(allResponses, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `opros_gimnastov_data_${allResponses.length}.json`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast('JSON-файл базы данных скачан!', 'success');
+        }
+
+        function copySummaryText() {
+            const text = document.getElementById('auto-summary-text').textContent;
+            if (!text) return;
+            copyTextToClipboard(text, 'Текст аналитической сводки скопирован в буфер обмена!');
+        }
+
+        function copyShareableLink() {
+            let shareUrl = window.location.href;
+            if (activeGasUrl) {
+                const u = new URL(window.location.href);
+                u.searchParams.set('api', activeGasUrl);
+                shareUrl = u.toString();
+            }
+            copyTextToClipboard(shareUrl, 'Ссылка на опросник скопирована! Отправьте её участникам.');
+        }
+
+        function copyGasScript() {
+            const code = document.getElementById('gas-script-code').textContent;
+            copyTextToClipboard(code, 'Код Google Apps Script скопирован!');
+        }
+
+        async function applyCustomGasUrl() {
+            const val = document.getElementById('gas-url-input').value.trim();
+            if (!val.startsWith('https://script.google.com/')) {
+                showToast('Укажите корректный URL веб-приложения https://script.google.com/...', 'error');
+                return;
+            }
+            activeGasUrl = val;
+            cloudMode = 'gas';
+            updateCloudStatusUI(
+                'emerald',
+                'Облако Google Таблиц активно',
+                'Все ответы по ссылке сохраняются в общую Google Таблицу и отображаются на сайте.'
+            );
+            await fetchFromGoogleScript();
+
+            const u = new URL(window.location.href);
+            u.searchParams.set('api', activeGasUrl);
+            copyTextToClipboard(u.toString(), 'Облако подключено! Единая ссылка для рассылки скопирована в буфер.');
+        }
+
+        function copyTextToClipboard(text, successMsg) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast(successMsg, 'success');
+        }
+
+        // =========================================================================
+        // 9. МОДАЛЬНЫЕ ОКНА, НАВИГАЦИЯ И ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+        // =========================================================================
+        function openCloudModal() {
+            document.getElementById('cloud-setup-modal').classList.remove('hidden');
+        }
+
+        function closeCloudModal() {
+            document.getElementById('cloud-setup-modal').classList.add('hidden');
+        }
+
+        function switchTab(tabName) {
+            const surveySection = document.getElementById('tab-survey');
+            const statsSection = document.getElementById('tab-stats');
+            const progressWrapper = document.getElementById('survey-progress-wrapper');
+            const btnSurvey = document.getElementById('tab-btn-survey');
+            const btnStats = document.getElementById('tab-btn-stats');
+
+            if (tabName === 'survey') {
+                surveySection.classList.remove('hidden');
+                statsSection.classList.add('hidden');
+                progressWrapper.classList.remove('hidden');
+
+                btnSurvey.className = 'flex-1 md:flex-initial flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-indigo-600 shadow-xs cursor-pointer';
+                btnStats.className = 'flex-1 md:flex-initial flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 cursor-pointer';
+            } else {
+                surveySection.classList.add('hidden');
+                statsSection.classList.remove('hidden');
+                progressWrapper.classList.add('hidden');
+
+                btnStats.className = 'flex-1 md:flex-initial flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-indigo-600 shadow-xs cursor-pointer';
+                btnSurvey.className = 'flex-1 md:flex-initial flex items-center justify-center gap-2 px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all text-slate-600 hover:text-slate-900 cursor-pointer';
+
+                renderStatsDashboard();
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+
+            const styles = {
+                success: 'bg-emerald-600 text-white',
+                error: 'bg-rose-600 text-white',
+                warning: 'bg-amber-500 text-white',
+                info: 'bg-slate-800 text-white'
+            };
+
+            toast.className = `${styles[type] || styles.info} px-4 py-3 rounded-xl shadow-lg text-xs sm:text-sm font-medium flex items-center justify-between gap-3 pointer-events-auto animate-fade-in`;
+            toast.innerHTML = `<span>${escapeHtml(message)}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.25s ease';
+                setTimeout(() => toast.remove(), 250);
+            }, 3200);
+        }
+
+        function escapeQuotes(str) {
+            return String(str).replace(/'/g, "\\'");
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        // Делаем функции доступными для inline-обработчиков в HTML
+        Object.assign(window, {
+            switchTab,
+            selectSingleOption,
+            selectScaleOption,
+            toggleMultipleOption,
+            handleOtherInput,
+            handleSurveySubmit,
+            startNewSurvey,
+            resetFormWithConfirm,
+            generateDemoResponses,
+            openClearConfirmModal,
+            closeClearConfirmModal,
+            confirmClearAllResponses,
+            deleteSingleResponse,
+            exportToExcelXLS,
+            exportToCSV,
+            exportToJSON,
+            copySummaryText,
+            copyShareableLink,
+            copyGasScript,
+            applyCustomGasUrl,
+            openCloudModal,
+            closeCloudModal
+        });
+
+        // Инициализация при загрузке
+        window.onload = async function () {
+            renderSurveyForm();
+            renderStatsDashboard();
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+            await initCloudStorage();
+        };
+    </script>
+</body>
+</html>
